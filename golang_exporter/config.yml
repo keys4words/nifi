@@ -1,0 +1,9 @@
+---
+exporter:
+  listenAddress: 0.0.0.0:9103
+nodes:
+  - url: http://nifi:8080
+    username: admin
+    password: ctsBtRBKHRAx69EqUghvvgEvjnaLjFEB
+    # labels:
+    #   env: testing

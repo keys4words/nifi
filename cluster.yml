@@ -16,7 +16,6 @@ x-nifi-base: &nifi-base
     - "../scripts/start.sh"
 
 x-nifi-environment: &nifi-environment
-  NIFI_WEB_HTTPS_PORT: 8443
   NIFI_CLUSTER_IS_NODE: "true"
   NIFI_ZK_CONNECT_STRING: "zookeeper:2181"
   NIFI_ELECTION_MAX_WAIT: "30 sec"
@@ -29,6 +28,7 @@ x-nifi-environment: &nifi-environment
   NIFI_SECURITY_USER_AUTHORIZER: "single-user-authorizer"
   NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER: "single-user-provider"
   INITIAL_ADMIN_IDENTITY: *user
+  NIFI_SECURITY_USER_JWS_KEY_ROTATION_PERIOD: 1H
   AUTH: "tls"
   KEYSTORE_TYPE: "JKS"
   KEYSTORE_PASSWORD: supersecretkeystore
@@ -86,19 +86,21 @@ services:
     networks:
       - nifi
 
-  # python_exporter:
-  #   build: ./python_exporter
-  #   container_name: python_exporter
-  #   ports:
-  #     - 9104:5000/tcp
-  #   environment:
-  #     BASE_URL: https://localhost:8443
-  #     USERNAME: *user
-  #     PASSWORD: *pwd
-  #     FLASK_ENV: development
-  #     PYTHONHTTPSVERIFY: 0 
-  #   depends_on:
-  #     - proxy
+  python_exporter:
+    build: ./python_exporter
+    container_name: python_exporter
+    ports:
+      - 9104:5000/tcp
+    environment:
+      BASE_URL: https://localhost:8444
+      USERNAME: *user
+      PASSWORD: *pass
+      FLASK_ENV: development
+    depends_on:
+      - nifi0
+      - nifi1
+    networks:
+      - nifi
 
 
   zookeeper:
@@ -119,22 +121,11 @@ services:
     networks:
       - nifi
 
-  proxy:
-    image: nginx:latest
-    container_name: proxy
-    volumes:
-      - ./nifi_cluster/nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "8443:8443"
-    networks:
-      - nifi
-    depends_on:
-      - nifi0
-      - nifi1
-
   nifi0:
     <<: *nifi-base
     container_name: nifi0
+    ports:
+      - 8443:8443
     volumes:
       - nifi_certs:/opt/certs
       - nifi0_conf:/opt/nifi/nifi-current/conf
@@ -149,6 +140,7 @@ services:
       <<: *nifi-environment
       NIFI_CLUSTER_ADDRESS: "nifi0"
       NIFI_WEB_HTTPS_HOST: "nifi0"
+      NIFI_WEB_HTTPS_PORT: 8443
       KEYSTORE_PATH: "/opt/certs/nifi0/keystore.jks"
       TRUSTSTORE_PATH: "/opt/certs/nifi0/truststore.jks"
     
@@ -156,6 +148,8 @@ services:
   nifi1:
     <<: *nifi-base
     container_name: nifi1
+    ports:
+      - 8444:8444
     volumes:
       - nifi_certs:/opt/certs
       - nifi1_conf:/opt/nifi/nifi-current/conf
@@ -169,6 +163,7 @@ services:
     environment:
       <<: *nifi-environment
       NIFI_CLUSTER_ADDRESS: "nifi1"
+      NIFI_WEB_HTTPS_PORT: 8444
       NIFI_WEB_HTTPS_HOST: "nifi1"
       KEYSTORE_PATH: "/opt/certs/nifi1/keystore.jks"
       TRUSTSTORE_PATH: "/opt/certs/nifi1/truststore.jks"

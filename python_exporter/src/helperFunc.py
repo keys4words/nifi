@@ -1,34 +1,31 @@
 import requests
-from requests.adapters import HTTPAdapter
-from requests.exceptions import ConnectionError
+from urllib.parse import urlencode
+from urllib3.exceptions import InsecureRequestWarning
 import json
 import sys
 import os
+import httplib2
 
 
 def getToken(url, login, password):
+  # requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+
   endpoint = url
-  data = {"username": "admin", "password": "superpupersecret"}
-  headers = {'Accept-Encoding': 'gzip, deflate, br', 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'Accept': '*/*' }
+  data = {"username":login, "password":password}
+  headers = {'Content-Type' : 'application/x-www-form-urlencoded' }
 
-  # adapter = HTTPAdapter(max_retries=1)
-  # session.mount(url, adapter)
-  # try:
-  #   p = session.post(url, data=data, headers=headers, verify=False, cookies=None)
-  # except ConnectionError as ce:
-  #   print("=====getTokenError=====" + str(ce), file=sys.stderr)
-  #   return None
-  endpoint = 'https://localhost:8443/nifi-api/access/token'
+  # session = requests.Session()
+  # session.verify = False
+  # p = session.post(url=endpoint, data=data, headers=headers)
 
-  session = requests.Session()
-  session.verify = False
-  session.trust_env = False
-  os.environ['CURL_CA_BUNDLE']="" # or whaever other is interfering with 
-  p = session.post(url=endpoint, data=data)
-  # p = requests.api.request('post', endpoint, data=data, headers=headers, json=None, verify=False)
+  # p = requests.post(endpoint, data=data, headers=headers)
+
+  h = httplib2.Http()
+  # h.add_credentials('name', 'password')
+  (resp, content) = h.request(endpoint, "POST", urlencode(data))
+  print('===============', resp, file=sys.stderr)
   
   if p.status_code == 201:
-    print(p.text, file=sys.stderr)
     return p.text
   else:
     return p

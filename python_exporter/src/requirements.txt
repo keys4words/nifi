@@ -1,4 +1,5 @@
 Flask == 1.1.4
 prometheus_client == 0.7.1
 requests == 2.22.0
+httplib2
 markupsafe==2.0.1

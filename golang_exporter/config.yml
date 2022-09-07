@@ -7,6 +7,28 @@ nodes:
     password: superpupersecret
     labels:
       env: first
+    caCertificates: |
+      -----BEGIN CERTIFICATE-----
+      MIIDYTCCAkmgAwIBAgIKAYMZfM+qAAAAADANBgkqhkiG9w0BAQsFADAjMQ0wCwYD
+      VQQLDAROSUZJMRIwEAYDVQQDDAlsb2NhbGhvc3QwHhcNMjIwOTA3MTk0NTUzWhcN
+      MjQxMjEwMTk0NTUzWjAjMQ0wCwYDVQQLDAROSUZJMRIwEAYDVQQDDAlsb2NhbGhv
+      c3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCeh28YKZmKxSewVRaT
+      IlhM64x2gJd/O8oTvvPcSJ2PP+iGhDzb2QYoFKudA2H6AarTT0w3UWZ9S68zBtH6
+      mm9FIFfxigLXqFm7yFS6pZXq+tmPtdnPgjnD40P1P5Dg7B6u1/3m8mjjbfTOZ0+d
+      jqt8jnyDS0Sn9e1TfezQiWE6bww7AD9OU7+8oWowK876mwQ/JzzmV/U+TQRKwuU3
+      7pm009LhyV7Wirj2XXGpqvk+lQltodRI5UuG1js6fPM0DoQziCN+5tfIVjndS305
+      wYvbincqdzIRYQswVqf4kCHoLLeCvl+EvYIrV8vnL0dqA0i7fL/kNNTJrj/BwyBO
+      /zRJAgMBAAGjgZYwgZMwDgYDVR0PAQH/BAQDAgH+MAwGA1UdEwQFMAMBAf8wHQYD
+      VR0OBBYEFEMCwvag9MJZf9fC/XsFZCZrG6PRMB8GA1UdIwQYMBaAFEMCwvag9MJZ
+      f9fC/XsFZCZrG6PRMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATAUBgNV
+      HREEDTALgglsb2NhbGhvc3QwDQYJKoZIhvcNAQELBQADggEBAJZwLwsuUFOwnuwG
+      9q+hv8UuGPT148EtB5v07aHzG+c9VUnEDwyQYVoHqOSTXZwxks1da0tvb4dpW2ta
+      ubL0x0q/0dzQt1Cze0dvZjvq9UWPecA7G35JqK+mTggBUFeB/x6aepilHMUTfZJC
+      8p3jG8devUS7/mRCesiQBK/KjAeeOmtO3ulRnuTk7JWxjXV/PL3WQQsov41v0srq
+      E0MelVi/Bbjy1rts7kRvTCB65M4mXxO8yqEQgADyseAZ/ysBaMjoXxUjTfbca7Am
+      fCKysGUMwT0oLsNGNqS9+yELIpIXYd9Si1PMEHapzHZ/ZKQWa+A/+gkU38eI4gOW
+      pVJD1SU=
+      -----END CERTIFICATE-----
 
   # - url: https://localhost:8444
   #   username: admin

@@ -1,28 +1,17 @@
 import requests
-from urllib.parse import urlencode
 from urllib3.exceptions import InsecureRequestWarning
 import json
 import sys
 import os
-import httplib2
 
 
 def getToken(url, login, password):
-  # requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
-
   endpoint = url
   data = {"username":login, "password":password}
   headers = {'Content-Type' : 'application/x-www-form-urlencoded' }
 
-  # session = requests.Session()
-  # session.verify = False
-  # p = session.post(url=endpoint, data=data, headers=headers)
+  p = requests.post(endpoint, data=data, headers=headers, verify='/app/certs/nifi-cert.pem')
 
-  # p = requests.post(endpoint, data=data, headers=headers)
-
-  h = httplib2.Http()
-  # h.add_credentials('name', 'password')
-  (resp, content) = h.request(endpoint, "POST", urlencode(data))
   print('===============', resp, file=sys.stderr)
   
   if p.status_code == 201:

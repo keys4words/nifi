@@ -96,6 +96,8 @@ services:
       USERNAME: *user
       PASSWORD: *pass
       FLASK_ENV: development
+    volumes:
+      - nifi_certs:/app/certs
     depends_on:
       - nifi0
       - nifi1
@@ -117,7 +119,7 @@ services:
     user: root
     volumes:
       - nifi_certs:/opt/certs
-    entrypoint: ["bash", "-c", "/opt/nifi-toolkit/*/bin/tls-toolkit.sh standalone -o /opt/certs -n nifi[0-1] -P supersecrettruststore -K supersecretkeystore -S supersecretkeystore; chown -R nifi:nifi /opt/certs"]
+    entrypoint: ["bash", "-c", "/opt/nifi-toolkit/*/bin/tls-toolkit.sh standalone -o /opt/certs -n nifi[0-1],python_exporter,golang_exporter -P supersecrettruststore -K supersecretkeystore -S supersecretkeystore; chown -R nifi:nifi /opt/certs"]
     networks:
       - nifi
 

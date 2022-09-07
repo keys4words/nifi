@@ -10,7 +10,7 @@ import urllib3
 import json
 import csv
 import sys
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 ## Variables ###
 CONTENT_TYPE_LATEST = str('text/plain; version=0.0.4; charset=utf-8')
@@ -21,9 +21,6 @@ PASSWORD = os.environ.get('PASSWORD')
 
 app = Flask(import_name=__name__)
 
-# session = requests.Session()
-# session.verify = False
-# session.keep_alive = False
 
 @app.route("/")
 def hello():

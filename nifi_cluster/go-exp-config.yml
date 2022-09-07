@@ -2,6 +2,6 @@
 exporter:
   listenAddress: 0.0.0.0:9103
 nodes:
-  - url: http://localhost:8888
+  - url: http://localhost:6379
     username: admin
     password: superpupersecret

@@ -1,0 +1,79 @@
+version: "3"
+services:
+  zookeeper:
+    hostname: zookeeper
+    container_name: zookeeper
+    image: 'bitnami/zookeeper:latest'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - nifinet
+
+  nifi01:
+    image: apache/nifi:1.17.0
+    ports:
+      - 6980:8080
+    networks:
+      - nifinet
+    environment:
+      - NIFI_WEB_HTTP_PORT=8080
+      - NIFI_CLUSTER_IS_NODE=true
+      - NIFI_CLUSTER_NODE_PROTOCOL_PORT=8082
+      - NIFI_ZK_CONNECT_STRING=zookeeper:2181
+      - NIFI_ELECTION_MAX_WAIT=1 min
+      - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
+
+  nifi02:
+    image: apache/nifi:1.17.0
+    ports:
+      - 6979:8080
+    networks:
+      - nifinet
+    environment:
+      - NIFI_WEB_HTTP_PORT=8080
+      - NIFI_CLUSTER_IS_NODE=true
+      - NIFI_CLUSTER_NODE_PROTOCOL_PORT=8082
+      - NIFI_ZK_CONNECT_STRING=zookeeper:2181
+      - NIFI_ELECTION_MAX_WAIT=1 min
+      - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
+
+  nifi03:
+    image: apache/nifi:1.17.0
+    ports:
+      - 6978:8080
+    networks:
+      - nifinet
+    environment:
+      - NIFI_WEB_HTTP_PORT=8080
+      - NIFI_CLUSTER_IS_NODE=true
+      - NIFI_CLUSTER_NODE_PROTOCOL_PORT=8082
+      - NIFI_ZK_CONNECT_STRING=zookeeper:2181
+      - NIFI_ELECTION_MAX_WAIT=1 min
+      - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
+  
+  golang_exporter:
+    image: msiedlarek/nifi_exporter:0.2.0
+    container_name: golang-exporter
+    restart: unless-stopped
+    ports:
+      - 9103:9103/tcp
+    volumes:
+      - ./go-exp-config.yml:/config/config.yml:ro
+
+  python_exporter:
+    build: ../python_exporter
+    container_name: python-exporter
+    ports:
+      - 9104:5000/tcp
+    environment:
+      BASE_URL: https://localhost:6379
+      USERNAME: admin
+      PASSWORD: superpupersecret 
+      FLASK_ENV: development
+  
+networks:
+  nifinet:
+    driver: bridge

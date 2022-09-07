@@ -1,0 +1,2 @@
+curl 'https://localhost:8443/nifi-api/access/token' -H 'Accept-Encoding: gzip, deflate, br' -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' -H 'Accept: */*' --data 'username=admin&password=superpupersecret' --compressed --insecure
+curl 'https://localhost:8443/nifi-api/controller/cluster' -H 'Accept-Encoding: gzip, deflate, sdch, br' -H 'Authorization: Bearer <token>' -H 'Accept: application/json, text/javascript, */*; q=0.01' --compressed --insecure

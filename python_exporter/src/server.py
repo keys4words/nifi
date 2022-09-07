@@ -9,6 +9,7 @@ import requests
 import urllib3
 import json
 import csv
+import sys
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 ## Variables ###
@@ -19,6 +20,10 @@ USERNAME = os.environ.get('USERNAME')
 PASSWORD = os.environ.get('PASSWORD')
 
 app = Flask(import_name=__name__)
+
+# session = requests.Session()
+# session.verify = False
+# session.keep_alive = False
 
 @app.route("/")
 def hello():
@@ -36,7 +41,8 @@ def metrics():
 
   #### ====  cluster nodes status ==== ####
   url = BASE_URL + "/nifi-api/controller/cluster"
-  cluster = getCluster(url, token)
+  cluster = getCluster(session, url, token)
+  # print(cluster, file=sys.stderr)
   for item in cluster:
     NodeName = {"instance":item['address']}
     nodeStatus = Gauge('nifi_nodes_status', 'Nifi node status', NodeName.keys(), registry=registry)

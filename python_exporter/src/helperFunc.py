@@ -5,37 +5,48 @@ import sys
 import os
 
 
+def run_script(script, stdin=None):
+    """Returns (stdout, stderr), raises error on non-zero return code"""
+    import subprocess
+    # print('===============', str(script), file=sys.stderr)
+    proc = subprocess.Popen(['bash', '-c', script],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        stdin=subprocess.PIPE)
+    stdout, stderr = proc.communicate()
+    if proc.returncode:
+        raise ScriptException(proc.returncode, stdout, stderr, script)
+    return stdout
+
+class ScriptException(Exception):
+    def __init__(self, returncode, stdout, stderr, script):
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        Exception().__init__('Error in script')
+
+
 def getToken(url, login, password):
   endpoint = url
-  data = {"username":login, "password":password}
-  headers = {'Content-Type' : 'application/x-www-form-urlencoded' }
-
-  p = requests.post(endpoint, data=data, headers=headers, verify='/app/certs/nifi-cert.pem')
-
-  print('===============', resp, file=sys.stderr)
-  
-  if p.status_code == 201:
-    return p.text
-  else:
-    return p
+  data = f"username={login}&password={password}"
+  headers = "Content-Type: application/x-www-form-urlencoded"
+  script = f"curl -d '{data}' -H '{headers}' -X POST {endpoint} --insecure"
+  token = run_script(script)
+  # p = requests.post(endpoint, data=data, headers=headers, verify='/app/certs/nifi-cert.pem')
+  return str(token, "utf-8")
 
 def getHeaders(token):
   headers = {}
   if token != None:
-    headers = {'Authorization': "Bearer {" + str(token) + "}" }
+    headers = {'Authorization': "Bearer " + str(token)}
   return headers
 
-def getCluster(session, url, token):
+def getCluster(url, token):
   headers = getHeaders(token)
 
-  adapter = HTTPAdapter(max_retries=1)
-  session.mount(url, adapter)
-  try:
-    response = session.get(url, headers=headers, verify=False)
-    jData = json.loads(response.text)
-    return jData['cluster']['nodes']
-  except ConnectionError as ce:
-    return ce
+  response = requests.get(url, headers=headers, verify=False)
+  #logger.debug( response.text)
+  jData = json.loads(response.text)
+  return jData['cluster']['nodes']
   
 
 def convertStatus(status):

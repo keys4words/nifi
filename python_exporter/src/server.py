@@ -37,9 +37,10 @@ def metrics():
     token = getToken(url, USERNAME, PASSWORD)
 
   #### ====  cluster nodes status ==== ####
+
   url = BASE_URL + "/nifi-api/controller/cluster"
-  cluster = getCluster(session, url, token)
-  # print(cluster, file=sys.stderr)
+
+  cluster = getCluster(url, token)
   for item in cluster:
     NodeName = {"instance":item['address']}
     nodeStatus = Gauge('nifi_nodes_status', 'Nifi node status', NodeName.keys(), registry=registry)

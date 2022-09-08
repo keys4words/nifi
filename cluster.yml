@@ -54,8 +54,11 @@ services:
     ports:
       - 9090:9090
     depends_on:
-      - golang-exporter
+      - python_exporter
+    networks:
+      - nifi
   
+
   grafana:
     image: grafana/grafana:6.7.2
     container_name: grafana
@@ -71,20 +74,22 @@ services:
       - 3000:3000
     depends_on:
       - prometheus
-    
-  golang_exporter:
-    image: msiedlarek/nifi_exporter:0.2.0
-    container_name: golang-exporter
-    restart: unless-stopped
-    ports:
-      - 9103:9103/tcp
-    volumes:
-      - ./golang_exporter/config.yml:/config/config.yml:ro
-    depends_on:
-      - nifi0
-      - nifi1
     networks:
       - nifi
+    
+  # golang_exporter:
+  #   image: msiedlarek/nifi_exporter:0.2.0
+  #   container_name: golang-exporter
+  #   restart: unless-stopped
+  #   ports:
+  #     - 9103:9103/tcp
+  #   volumes:
+  #     - ./golang_exporter/config.yml:/config/config.yml:ro
+  #   depends_on:
+  #     - nifi0
+  #     - nifi1
+  #   networks:
+  #     - nifi
 
   python_exporter:
     build: ./python_exporter
@@ -92,12 +97,10 @@ services:
     ports:
       - 9104:5000/tcp
     environment:
-      BASE_URL: https://localhost:8444
+      BASE_URL: https://nifi1:8444
       USERNAME: *user
       PASSWORD: *pass
       FLASK_ENV: development
-    volumes:
-      - nifi_certs:/app/certs
     depends_on:
       - nifi0
       - nifi1
@@ -119,7 +122,7 @@ services:
     user: root
     volumes:
       - nifi_certs:/opt/certs
-    entrypoint: ["bash", "-c", "/opt/nifi-toolkit/*/bin/tls-toolkit.sh standalone -o /opt/certs -n nifi[0-1],python_exporter,golang_exporter -P supersecrettruststore -K supersecretkeystore -S supersecretkeystore; chown -R nifi:nifi /opt/certs"]
+    entrypoint: ["bash", "-c", "/opt/nifi-toolkit/*/bin/tls-toolkit.sh standalone -o /opt/certs -n nifi[0-1] -P supersecrettruststore -K supersecretkeystore -S supersecretkeystore; chown -R nifi:nifi /opt/certs"]
     networks:
       - nifi
 

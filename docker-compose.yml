@@ -8,26 +8,62 @@ services:
   zookeeper:
     image: 'bitnami/zookeeper:latest'
     container_name: zookeeper
+    ports:
+      - "2181:2181"
     networks:
       - app-tier
     environment:
       - "ALLOW_ANONYMOUS_LOGIN=yes"
 
-  # nifi1:
-  #   image: apache/nifi:1.17.0
-  #   container_name: nifi1
-  #   ports:
-  #     - "8888:8080"
-  #     - "8443:8443"
-  #   environment:
-  #     SINGLE_USER_CREDENTIALS_USERNAME: admin
-  #     SINGLE_USER_CREDENTIALS_PASSWORD: superpupersecret
-  #     NIFI_WEB_HTTP_HOST: '0.0.0.0'
-  #     NIFI_WEB_HTTP_PORT: '8080'
-  #     NIFI_WEB_HTTPS_HOST:
-  #     NIFI_WEB_HTTPS_PORT:
-  #   networks:
-  #     - app-tier
+  nifi-toolkit:
+    image: apache/nifi-toolkit:1.17.0
+    container_name: nifi-toolkit
+    user: root
+    volumes:
+      - nifi_certs:/opt/certs
+    entrypoint: ["bash", "-c", "/opt/nifi-toolkit/*/bin/tls-toolkit.sh standalone -o /opt/certs -n nifi[1-2] -n localhost -C 'CN=keys4,OU=nifi' --subjectAlternativeNames 'localhost,0.0.0.0,nifi1,nifi2' -P supersecrettruststore -K supersecretkeystore -S supersecretkeystore; chown -R nifi:nifi /opt/certs"]
+    networks:
+      - app-tier
+
+  nifi1:
+    image: apache/nifi:1.6.0
+    container_name: nifi1
+    hostname: nifi1
+    ports:
+      - "8888:8080"
+      - "8443:8443"
+    environment:
+      NIFI_CLUSTER_ADDRESS: "nifi1"
+      NIFI_WEB_HTTPS_HOST: "nifi1"
+      NIFI_WEB_HTTPS_PORT: 8443
+      KEYSTORE_PATH: "/opt/certs/nifi1/keystore.jks"
+      TRUSTSTORE_PATH: "/opt/certs/nifi1/truststore.jks"
+      NIFI_CLUSTER_IS_NODE: "true"
+      NIFI_ZK_CONNECT_STRING: "zookeeper:2181"
+      NIFI_ELECTION_MAX_WAIT: "30 sec"
+      NIFI_ELECTION_MAX_CANDIDATES: 1
+      NIFI_SENSITIVE_PROPS_KEY: "my-random-string"
+      NIFI_CLUSTER_NODE_PROTOCOL_PORT: 8082
+      NIFI_WEB_PROXY_HOST: "localhost,nifi1:8443,nifi2,localhost:8444,nifi1:8888,nifi2:8889"
+      SINGLE_USER_CREDENTIALS_USERNAME: admin
+      SINGLE_USER_CREDENTIALS_PASSWORD: superpupersecret
+      NIFI_SECURITY_USER_AUTHORIZER: "single-user-authorizer"
+      NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER: "single-user-provider"
+      INITIAL_ADMIN_IDENTITY: admin
+      NIFI_SECURITY_USER_JWS_KEY_ROTATION_PERIOD: 1H
+      AUTH: "tls"
+      KEYSTORE_TYPE: "JKS"
+      KEYSTORE_PASSWORD: supersecretkeystore
+      TRUSTSTORE_TYPE: "JKS"
+      TRUSTSTORE_PASSWORD: supersecrettruststore
+    volumes:
+      - nifi_certs:/opt/certs
+      - nifi1_conf:/opt/nifi/nifi-current/conf
+    networks:
+      - app-tier
+    depends_on:
+      nifi-toolkit:
+        condition: service_completed_successfully
   
   # golang_exporter:
   #   image: msiedlarek/nifi_exporter:0.2.0
@@ -41,20 +77,44 @@ services:
   #     - nifi1
   
   nifi2:
-    image: apache/nifi:1.17.0
+    image: apache/nifi:1.6.0
     container_name: nifi2
+    hostname: nifi2
     ports:
       - "8889:8080"
       - "8444:8444"
     environment:
+      NIFI_CLUSTER_ADDRESS: "nifi2"
+      NIFI_WEB_HTTPS_HOST: "nifi2"
+      NIFI_WEB_HTTPS_PORT: 8444
+      KEYSTORE_PATH: "/opt/certs/nifi2/keystore.jks"
+      TRUSTSTORE_PATH: "/opt/certs/nifi2/truststore.jks"
+      NIFI_CLUSTER_IS_NODE: "true"
+      NIFI_ZK_CONNECT_STRING: "zookeeper:2181"
+      NIFI_ELECTION_MAX_WAIT: "30 sec"
+      NIFI_ELECTION_MAX_CANDIDATES: 1
+      NIFI_SENSITIVE_PROPS_KEY: "my-random-string"
+      NIFI_CLUSTER_NODE_PROTOCOL_PORT: 8082
+      NIFI_WEB_PROXY_HOST: "nifi1,localhost:8443,nifi2,localhost:8444,nifi1:8888,nifi2:8889"
       SINGLE_USER_CREDENTIALS_USERNAME: admin
       SINGLE_USER_CREDENTIALS_PASSWORD: superpupersecret
-      NIFI_WEB_HTTP_HOST: '0.0.0.0'
-      NIFI_WEB_HTTP_PORT: '8080'
-      NIFI_WEB_HTTPS_HOST:
-      NIFI_WEB_HTTPS_PORT:
+      NIFI_SECURITY_USER_AUTHORIZER: "single-user-authorizer"
+      NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER: "single-user-provider"
+      INITIAL_ADMIN_IDENTITY: admin
+      NIFI_SECURITY_USER_JWS_KEY_ROTATION_PERIOD: 1H
+      AUTH: "tls"
+      KEYSTORE_TYPE: "JKS"
+      KEYSTORE_PASSWORD: supersecretkeystore
+      TRUSTSTORE_TYPE: "JKS"
+      TRUSTSTORE_PASSWORD: supersecrettruststore
+    volumes:
+      - nifi_certs:/opt/certs
+      # - nifi2_conf:/opt/nifi/nifi-current/conf
     networks:
       - app-tier
+    depends_on:
+      nifi-toolkit:
+        condition: service_completed_successfully
   
   python_exporter:
     build: ./python_exporter
@@ -67,17 +127,20 @@ services:
       PASSWORD: superpupersecret 
       FLASK_ENV: development
     depends_on:
-      - nifi12
+      - nifi1
   
-  nifi-registry:
-    image: apache/nifi-registry:1.17.0
-    container_name: nifi-registry
-    ports:
-      - "18080:18080"
-    networks:
-      - app-tier
-    volumes:
-      - ./nifiRegistry/flow-storage:/opt/nifi-registry/nifi-registry-current/flow_storage
-      - ./nifiRegistry/database:/opt/nifi-registry/nifi-registry-current/database
+  # nifi-registry:
+  #   image: apache/nifi-registry:1.6.0
+  #   container_name: nifi-registry
+  #   ports:
+  #     - "18080:18080"
+  #   networks:
+  #     - app-tier
+  #   volumes:
+  #     - ./nifiRegistry/flow-storage:/opt/nifi-registry/nifi-registry-current/flow_storage
+  #     - ./nifiRegistry/database:/opt/nifi-registry/nifi-registry-current/database
   
-  
+volumes:
+  nifi_certs:
+  nifi1_conf:
+  nifi2_conf:

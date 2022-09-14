@@ -10,7 +10,7 @@ services:
       - nifinet
 
   nifi01:
-    image: apache/nifi:1.17.0
+    image: apache/nifi:1.6.0
     ports:
       - 6980:8080
     networks:
@@ -21,11 +21,12 @@ services:
       - NIFI_CLUSTER_NODE_PROTOCOL_PORT=8082
       - NIFI_ZK_CONNECT_STRING=zookeeper:2181
       - NIFI_ELECTION_MAX_WAIT=1 min
-      - SINGLE_USER_CREDENTIALS_USERNAME=admin
-      - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
+      - NIFI_SENSITIVE_PROPS_KEY=sdkfj430r234rjlj4r0r2
+      # - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      # - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
 
   nifi02:
-    image: apache/nifi:1.17.0
+    image: apache/nifi:1.6.0
     ports:
       - 6979:8080
     networks:
@@ -36,11 +37,12 @@ services:
       - NIFI_CLUSTER_NODE_PROTOCOL_PORT=8082
       - NIFI_ZK_CONNECT_STRING=zookeeper:2181
       - NIFI_ELECTION_MAX_WAIT=1 min
-      - SINGLE_USER_CREDENTIALS_USERNAME=admin
-      - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
+      - NIFI_SENSITIVE_PROPS_KEY=sdkfj430r234rjlj4r0r2
+      # - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      # - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
 
   nifi03:
-    image: apache/nifi:1.17.0
+    image: apache/nifi:1.6.0
     ports:
       - 6978:8080
     networks:
@@ -51,8 +53,9 @@ services:
       - NIFI_CLUSTER_NODE_PROTOCOL_PORT=8082
       - NIFI_ZK_CONNECT_STRING=zookeeper:2181
       - NIFI_ELECTION_MAX_WAIT=1 min
-      - SINGLE_USER_CREDENTIALS_USERNAME=admin
-      - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
+      - NIFI_SENSITIVE_PROPS_KEY=sdkfj430r234rjlj4r0r2
+      # - SINGLE_USER_CREDENTIALS_USERNAME=admin
+      # - SINGLE_USER_CREDENTIALS_PASSWORD=superpupersecret
   
   golang_exporter:
     image: msiedlarek/nifi_exporter:0.2.0

@@ -1,1 +1,15 @@
 https://www.javahelps.com/2022/01/run-apache-nifi-cluster-in-docker-with.html
+https://www.itpanther.com/installing-apache-nifi-cluster-on-linux/
+
+https://www.ooed.org/best-online-courses-to-learn-apache-nifi/
+https://freeudemycourse.com/introduction-to-apache-nifi-cloudera-dataflow-hdf-2-0-free-download/
+https://www.psdly.com/apache-nifi-a-complete-introduction-master-the-flow
+
+
+https://github.com/InsightByte/ApacheNifi
+https://www.youtube.com/watch?v=M724RJYaXhs
+
+https://www.youtube.com/playlist?list=PLVCgi5HZ0-Ys6CHSA0W1P4MNAfIHvbiZV
+
+https://www.youtube.com/playlist?list=PL4MpKy3QjNp_rOEEibc4Ro8UK4g8vLX6_
+https://www.youtube.com/watch?v=fblkgr1PJ0o

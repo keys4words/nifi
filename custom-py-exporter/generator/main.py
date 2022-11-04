@@ -12,7 +12,7 @@ def metric_generator(endpoint, return_message):
     code = random.choice([200, 201, 202, 404, 503, 400])
     payload = {"time": time.time() - start, "status": code, "endpoint": endpoint}
     try:
-        requests.post("http://localhost:5000/metric-receiver", json=payload)
+        requests.post("http://exporter:5000/metric-receiver", json=payload)
     except:
         app.logger.error("Can't push metrics")
     return return_message, code

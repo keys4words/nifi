@@ -2,6 +2,7 @@ from flask import Flask, request, Response
 from prometheus_client.core import REGISTRY, CounterMetricFamily, HistogramMetricFamily
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, GCCollector
 
+
 app = Flask(__name__)
 
 
@@ -68,3 +69,7 @@ def build_histo(endpoint, duration):
 @app.route("/metrics")
 def metrics():
     return Response(generate_latest(), mimetype=CONTENT_TYPE_LATEST)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
